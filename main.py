@@ -1,7 +1,7 @@
+# SIGMA SHOOTER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 import pygame
 pygame.init()
 from random import randint
-
 
 FPS = 60
 clock = pygame.time.Clock()
