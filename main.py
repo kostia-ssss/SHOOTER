@@ -53,6 +53,20 @@ class Enemy(Sprite):
     
     def move(self):
         self.rect.y += self.speed
+        self.rect.x += self.speed * randint(-1, 1)
+        if self.rect.y >= wind_h:
+            self.rect.y = randint(-250, -50)
+            self.rect.x = randint(0, wind_w-50)
+
+class Meteor(Sprite):
+    def __init__(self , x , y , w , h , img1 , speed, hp):
+        super().__init__(x, y, w, h, img1)
+        self.speed = speed
+        self.hp = hp
+    
+    def move(self):
+        self.rect.y += self.speed
+        self.rect.x += self.speed * randint(-1, 1)
         if self.rect.y >= wind_h:
             self.rect.y = randint(-250, -50)
             self.rect.x = randint(0, wind_w-50)
@@ -69,9 +83,15 @@ p_img2 = pygame.transform.flip(p_img1, True, False)
 player = Player(35, 400, 50, 40, p_img1, p_img2, 5)
 
 enemy_img = pygame.image.load("govno.png")
+meteor_img = pygame.image.load("meteor.png")
 ENEMIES = []
+METEORS = []
 for i in range(5):
-    ENEMIES.append(Enemy(randint(0, wind_w-50), randint(-250, -50), 50, 40, enemy_img, 3))
+    a = randint(0, 1)
+    if a == 1:
+        ENEMIES.append(Enemy(randint(0, wind_w-50), randint(-250, -50), 50, 40, enemy_img, 3))
+    else:
+        METEORS.append(Meteor(randint(0, wind_w-50), randint(-250, -50), 50, 40, meteor_img, 3, 4))
 
 game = True
 finish = False
@@ -79,7 +99,7 @@ while game:
     if not finish:
         window.blit(background, (0, 0))
         
-        if any(player.rect.colliderect(enemy.rect) for enemy in ENEMIES):
+        if any(player.rect.colliderect(enemy.rect) for enemy in ENEMIES) or any(player.rect.colliderect(meteor.rect) for meteor in METEORS):
             window.blit(lose, (200, 200))
             window.blit(reset, (200, 250))
             finish = True
@@ -90,6 +110,9 @@ while game:
             enemy.draw()
             enemy.move()
         
+        for meteor in METEORS:
+            meteor.draw()
+            meteor.move()
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -98,8 +121,14 @@ while game:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_r and finish == True:
             finish = False
             player = Player(35, 400, 50, 40, p_img1, p_img2, 5)
-            for i in range(10):
-                ENEMIES.append(Enemy(0, -50, 50, 40, pygame.image.load("govno.png"), 3))
+            ENEMIES = []
+            METEORS = []
+            for i in range(5):
+                a = randint(0, 1)
+                if a == 1:
+                    ENEMIES.append(Enemy(randint(0, wind_w-50), randint(-250, -50), 50, 40, enemy_img, 3))
+                else:
+                    METEORS.append(Meteor(randint(0, wind_w-50), randint(-250, -50), 50, 40, meteor_img, 3, 4))
     
     pygame.display.update()
     clock.tick(FPS)
