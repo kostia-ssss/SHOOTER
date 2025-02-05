@@ -120,7 +120,7 @@ score_font = pygame.font.SysFont("Comfortaa" , 35)
 lose_font = pygame.font.SysFont("Comfortaa" , 35)
 win = font.render("You win!", True, (0, 100, 0))
 lose = font.render("You lose(", True, (100, 0, 0))
-reset = font.render("Press R to reset", True, (0, 0, 0))
+reset = font.render("Press R to reset", True, (255, 255, 255))
 score_txt = font.render(str(score), True, (255, 255, 255))
 
 p_img1 = pygame.image.load("Player.png")
@@ -151,7 +151,7 @@ while game:
         LM_score_txt = font.render(str(LM_score), True, (255, 255, 255))
         window.blit(LM_score_txt, (0, wind_h-35))
         
-        if any(player.rect.colliderect(enemy.rect) for enemy in ENEMIES) or any(player.rect.colliderect(meteor.rect) for meteor in METEORS):
+        if any(player.rect.colliderect(enemy.rect) for enemy in ENEMIES) or any(player.rect.colliderect(meteor.rect) for meteor in METEORS) or LM_score >= 50:
             window.blit(lose, (200, 200))
             window.blit(reset, (200, 250))
             finish = True
@@ -187,6 +187,7 @@ while game:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_r and finish == True:
             finish = False
             score = 0
+            LM_score = 0
             player = Player(35, 400, 50, 40, p_img1, p_img2, 5)
             ENEMIES = []
             METEORS = []
