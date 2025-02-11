@@ -7,6 +7,7 @@ from random import randint
 FPS = 60
 score = 0
 LM_score = 0
+patrons = 50
 clock = pygame.time.Clock()
 
 wind_w, wind_h = 700, 500
@@ -53,8 +54,11 @@ class Player(Sprite):
                 self.rect.x += self.speed
     
     def FIRE(self):
-        BULLETS.append(Bullet(self.rect.centerx, self.rect.top, 25, 50, bullet_img, 3))
-        vistrel.play()
+        global patrons
+        if patrons > 0:
+            BULLETS.append(Bullet(self.rect.centerx, self.rect.top, 25, 50, bullet_img, 3))
+            vistrel.play()
+            patrons -= 1
 
 class Enemy(Sprite):
     def __init__(self , x , y , w , h , img1 , speed):
@@ -122,6 +126,7 @@ win = font.render("You win!", True, (0, 100, 0))
 lose = font.render("You lose(", True, (100, 0, 0))
 reset = font.render("Press R to reset", True, (255, 255, 255))
 score_txt = font.render(str(score), True, (255, 255, 255))
+p_txt = font.render(str(patrons), True, (255, 255, 255))
 
 p_img1 = pygame.image.load("Player.png")
 p_img2 = pygame.transform.flip(p_img1, True, False)
@@ -150,6 +155,8 @@ while game:
         window.blit(score_txt, (0, 0))
         LM_score_txt = font.render(str(LM_score), True, (255, 255, 255))
         window.blit(LM_score_txt, (0, wind_h-35))
+        p_txt = font.render(str(round(patrons)), True, (255, 255, 255))
+        window.blit(p_txt, (wind_w-40, 0))
         
         if any(player.rect.colliderect(enemy.rect) for enemy in ENEMIES) or any(player.rect.colliderect(meteor.rect) for meteor in METEORS) or LM_score >= 50:
             window.blit(lose, (200, 200))
@@ -175,6 +182,9 @@ while game:
         for bullet in BULLETS:
             bullet.draw()
             bullet.move()
+        
+        if patrons < 50:
+            patrons += 0.01
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
