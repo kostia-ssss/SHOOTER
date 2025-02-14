@@ -16,6 +16,8 @@ pygame.display.set_caption("SHOOTER")
 
 background = pygame.image.load("bg.jfif")
 background = pygame.transform.scale(background, (wind_w , wind_h))
+menu_background = pygame.image.load("menu_bg.jfif")
+menu_background = pygame.transform.scale(menu_background, (wind_w , wind_h))
 
 # music
 pygame.mixer.music.load("music.mp3")
@@ -56,7 +58,7 @@ class Player(Sprite):
     def FIRE(self):
         global patrons
         if patrons > 0:
-            BULLETS.append(Bullet(self.rect.centerx, self.rect.top, 25, 50, bullet_img, 3))
+            BULLETS.append(Bullet(self.rect.centerx, self.rect.top, 25, 50, bullet_img, 3, "player"))
             vistrel.play()
             patrons -= 1
 
@@ -103,17 +105,39 @@ class Meteor(Sprite):
             self.rect.y = randint(-250, -50)
             self.rect.x = randint(0, wind_w-50)
             score += 1
-            
-class Bullet(Sprite):
-    def __init__(self, x, y, w, h, img, speed):
-        super().__init__(x, y, w, h, img)
-        self.speed = speed
+
+class Boss(Meteor):
+    def __init__(self, x, y, w, h, img1, speed, hp, delay):
+        super().__init__(x, y, w, h, img1, speed, hp)
+        self.delay = delay
     
     def move(self):
-        self.rect.y -= self.speed
-        self.rect.x += self.speed * randint(-difficult_coof, difficult_coof)
-        if self.rect.bottom <= 0:
-            BULLETS.remove(self)
+        self.rect.x += self.speed
+        # if self.rect.right >= wind_w or self.rect.left <= 0:
+        #     self.speed *= -1
+    
+    def fire(self):
+        B_BULLETS.append(Bullet(self.rect.centerx, self.rect.top, 25, 50, pygame.image.load("boss_patron.jfif"), 3, "boss"))
+
+        
+            
+class Bullet(Sprite):
+    def __init__(self, x, y, w, h, img, speed, type):
+        super().__init__(x, y, w, h, img)
+        self.speed = speed
+        self.type = type
+    
+    def move(self):
+        if self.type == "player":
+            self.rect.y -= self.speed
+            self.rect.x += self.speed * randint(-difficult_coof, difficult_coof)
+            if self.rect.bottom <= 0:
+                BULLETS.remove(self)
+        elif self.type == "boss":
+            self.rect.y += self.speed
+            self.rect.x += self.speed * randint(-difficult_coof, difficult_coof)
+            if self.rect.top >= wind_h:
+                B_BULLETS.remove(self)    
 
 # variables & lists
 difficult_coof = 1
@@ -131,13 +155,16 @@ p_txt = font.render(str(patrons), True, (255, 255, 255))
 p_img1 = pygame.image.load("Player.png")
 p_img2 = pygame.transform.flip(p_img1, True, False)
 player = Player(35, 400, 50, 40, p_img1, p_img2, 5)
-
+play_btn = Sprite(wind_w/2-35, wind_h/2-25+50, 70, 50, pygame.image.load("play_btn.png"))
+quit_btn = Sprite(wind_w-70, wind_h-50, 70, 50, pygame.image.load("quit_btn.png"))
+BOSS_image = pygame.image.load("Boss.png")
 enemy_img = pygame.image.load("govno.png")
 meteor_img = pygame.image.load("meteor.png")
 bullet_img = pygame.image.load("bullet.png")
 ENEMIES = []
 METEORS = []
 BULLETS = []
+B_BULLETS = []
 for i in range(5):
     a = randint(0, 1)
     if a == 1:
@@ -147,10 +174,12 @@ for i in range(5):
 
 # game loop
 game = True
-finish = False
+finish = True
+menu = True
 while game:
     if not finish:
         window.blit(background, (0, 0))
+        quit_btn.draw()
         score_txt = font.render(str(score), True, (255, 255, 255))
         window.blit(score_txt, (0, 0))
         LM_score_txt = font.render(str(LM_score), True, (255, 255, 255))
@@ -183,8 +212,22 @@ while game:
             bullet.draw()
             bullet.move()
         
+        for bullet in B_BULLETS:
+            bullet.draw()
+            bullet.move()
+        
         if patrons < 50:
             patrons += 0.01
+        
+        if score >= 50:
+            print("kkkk")
+            boss = Boss(50, 50, 120, 100, pygame.image.load("Boss.png"), 3, 50, 200)
+            boss.draw()
+            boss.move()
+    
+    if menu:
+        window.blit(menu_background, (0, 0))
+        play_btn.draw()
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -192,7 +235,9 @@ while game:
         
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             player.FIRE()
-            
+        
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_l:
+            score += 50
             
         if event.type == pygame.KEYDOWN and event.key == pygame.K_r and finish == True:
             finish = False
@@ -208,6 +253,15 @@ while game:
                     ENEMIES.append(Enemy(randint(0, wind_w-50), randint(-250, -50), 50, 40, enemy_img, 3))
                 else:
                     METEORS.append(Meteor(randint(0, wind_w-50), randint(-250, -50), 50, 40, meteor_img, 3, 3))
+        
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            x , y = event.pos
+            if play_btn.rect.collidepoint(x, y):
+                finish = False
+                menu = False
+            if quit_btn.rect.collidepoint(x, y):
+                menu = True
+                finish = True
     
     pygame.display.update()
     clock.tick(FPS)
