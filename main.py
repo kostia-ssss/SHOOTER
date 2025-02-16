@@ -112,9 +112,13 @@ class Boss(Meteor):
         self.delay = delay
     
     def move(self):
-        self.rect.x += self.speed
-        # if self.rect.right >= wind_w or self.rect.left <= 0:
-        #     self.speed *= -1
+        if randint(1, 5) == 1:
+            self.rect.x -= self.speed
+        else:
+            self.rect.x += self.speed
+            
+        if self.rect.right >= wind_w or self.rect.left <= 0:
+            self.speed *= -1
     
     def fire(self):
         B_BULLETS.append(Bullet(self.rect.centerx, self.rect.top, 25, 50, pygame.image.load("boss_patron.jfif"), 3, "boss"))
@@ -152,6 +156,8 @@ reset = font.render("Press R to reset", True, (255, 255, 255))
 score_txt = font.render(str(score), True, (255, 255, 255))
 p_txt = font.render(str(patrons), True, (255, 255, 255))
 
+b = False
+boss = Boss(50, 50, 120, 100, pygame.image.load("Boss.png"), 3, 50, 200)
 p_img1 = pygame.image.load("Player.png")
 p_img2 = pygame.transform.flip(p_img1, True, False)
 player = Player(35, 400, 50, 40, p_img1, p_img2, 5)
@@ -191,22 +197,33 @@ while game:
             window.blit(lose, (200, 200))
             window.blit(reset, (200, 250))
             finish = True
+        
+        if any(boss.rect.colliderect(bullet.rect) for bullet in BULLETS):
+            boss.take_damage()
             
         player.draw()
         player.move()
         for enemy in ENEMIES:
             if any(enemy.rect.colliderect(bullet.rect) for bullet in BULLETS):
                 enemy.die()
-                BULLETS.remove(bullet)
-            enemy.draw()
-            enemy.move()
+                try:
+                    BULLETS.remove(bullet)
+                except:
+                    print("kk")
+            if b == 0:
+                enemy.draw()
+                enemy.move()
         
         for meteor in METEORS:
             if any(meteor.rect.colliderect(bullet.rect) for bullet in BULLETS):
                 meteor.take_damage()
-                BULLETS.remove(bullet)
-            meteor.draw()
-            meteor.move()
+                try:
+                    BULLETS.remove(bullet)
+                except:
+                    print("kk")
+            if b == 0:
+                meteor.draw()
+                meteor.move()
         
         for bullet in BULLETS:
             bullet.draw()
@@ -215,15 +232,18 @@ while game:
         for bullet in B_BULLETS:
             bullet.draw()
             bullet.move()
+            if player.rect.colliderect(bullet.rect) and bullet.type == "boss":
+                finish = True
         
         if patrons < 50:
             patrons += 0.01
         
         if score >= 50:
-            print("kkkk")
-            boss = Boss(50, 50, 120, 100, pygame.image.load("Boss.png"), 3, 50, 200)
+            b = True
             boss.draw()
             boss.move()
+            if randint(1, 100) == 1:
+                boss.fire()
     
     if menu:
         window.blit(menu_background, (0, 0))
