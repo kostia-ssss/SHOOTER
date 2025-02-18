@@ -112,16 +112,13 @@ class Boss(Meteor):
         self.delay = delay
     
     def move(self):
-        if randint(1, 5) == 1:
-            self.rect.x -= self.speed
-        else:
-            self.rect.x += self.speed
+        self.rect.x += (self.speed * (randint(1, 100))/60)
             
         if self.rect.right >= wind_w or self.rect.left <= 0:
             self.speed *= -1
     
     def fire(self):
-        B_BULLETS.append(Bullet(self.rect.centerx, self.rect.top, 25, 50, pygame.image.load("boss_patron.jfif"), 3, "boss"))
+        B_BULLETS.append(Bullet(self.rect.centerx, self.rect.top, 50, 50, pygame.image.load("boss_patron.png"), 3, "boss"))
 
         
             
@@ -163,6 +160,7 @@ p_img2 = pygame.transform.flip(p_img1, True, False)
 player = Player(35, 400, 50, 40, p_img1, p_img2, 5)
 play_btn = Sprite(wind_w/2-35, wind_h/2-25+50, 70, 50, pygame.image.load("play_btn.png"))
 quit_btn = Sprite(wind_w-70, wind_h-50, 70, 50, pygame.image.load("quit_btn.png"))
+close_btn = Sprite(wind_w-60, wind_h-30, 60, 30, pygame.image.load("close_btn.png"))
 BOSS_image = pygame.image.load("Boss.png")
 enemy_img = pygame.image.load("govno.png")
 meteor_img = pygame.image.load("meteor.png")
@@ -228,6 +226,19 @@ while game:
         for bullet in BULLETS:
             bullet.draw()
             bullet.move()
+            if bullet.rect.colliderect(boss.rect):
+                boss.take_damage()
+                try:
+                    BULLETS.remove(bullet)
+                except:
+                    print("kk")
+            for b in B_BULLETS:
+                if bullet.rect.colliderect(b.rect):
+                    try:
+                        B_BULLETS.remove(b)
+                        BULLETS.remove(bullet)
+                    except:
+                        print("kk")
         
         for bullet in B_BULLETS:
             bullet.draw()
@@ -242,12 +253,13 @@ while game:
             b = True
             boss.draw()
             boss.move()
-            if randint(1, 100) == 1:
+            if randint(1, 700) == 1:
                 boss.fire()
     
     if menu:
         window.blit(menu_background, (0, 0))
         play_btn.draw()
+        close_btn.draw()
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -282,6 +294,8 @@ while game:
             if quit_btn.rect.collidepoint(x, y):
                 menu = True
                 finish = True
+            if close_btn.rect.collidepoint(x, y):
+                pygame.quit()
     
     pygame.display.update()
     clock.tick(FPS)
