@@ -8,6 +8,8 @@ FPS = 60
 score = 0
 LM_score = 0
 patrons = 50
+record = 0
+b_score = 50
 clock = pygame.time.Clock()
 
 wind_w, wind_h = 700, 500
@@ -26,6 +28,14 @@ pygame.mixer.music.play(-1)
 
 vistrel = pygame.mixer.Sound("vistrel.mp3")
 
+# opening file
+try:
+    with open("record.txt", "r", encoding="Utf-8") as file:
+        record = int(file.read())
+except:
+    record = 0
+
+print(record)
 # classes
 class Sprite:
     def __init__(self , x , y , w , h, img):
@@ -147,21 +157,22 @@ font2 = pygame.font.SysFont("Comfortaa" , 20)
 font3 = pygame.font.SysFont("Comfortaa" , 35)
 score_font = pygame.font.SysFont("Comfortaa" , 35)
 lose_font = pygame.font.SysFont("Comfortaa" , 35)
+record_font = pygame.font.SysFont("Comfortaa" , 35)
 win = font.render("You win!", True, (0, 100, 0))
 lose = font.render("You lose(", True, (100, 0, 0))
 reset = font.render("Press R to reset", True, (255, 255, 255))
 score_txt = font.render(str(score), True, (255, 255, 255))
 p_txt = font.render(str(patrons), True, (255, 255, 255))
+r_txt = record_font.render(str(record), True, (255, 255, 255))
 
 b = False
-boss = Boss(50, 50, 120, 100, pygame.image.load("Boss.png"), 3, 50, 200)
+boss = Boss(50, 50, 120, 100, pygame.image.load("Boss.png"), 3, 10, 700)
 p_img1 = pygame.image.load("Player.png")
 p_img2 = pygame.transform.flip(p_img1, True, False)
 player = Player(35, 400, 50, 40, p_img1, p_img2, 5)
 play_btn = Sprite(wind_w/2-35, wind_h/2-25+50, 70, 50, pygame.image.load("play_btn.png"))
 quit_btn = Sprite(wind_w-70, wind_h-50, 70, 50, pygame.image.load("quit_btn.png"))
-close_btn = Sprite(wind_w-60, wind_h-30, 60, 30, pygame.image.load("close_btn.png"))
-BOSS_image = pygame.image.load("Boss.png")
+close_btn = Sprite(wind_w-60, 0, 60, 30, pygame.image.load("close_btn.png"))
 enemy_img = pygame.image.load("govno.png")
 meteor_img = pygame.image.load("meteor.png")
 bullet_img = pygame.image.load("bullet.png")
@@ -180,8 +191,10 @@ for i in range(5):
 game = True
 finish = True
 menu = True
-while game:
+while game:    
+    print(b)
     if not finish:
+        # rendering
         window.blit(background, (0, 0))
         quit_btn.draw()
         score_txt = font.render(str(score), True, (255, 255, 255))
@@ -198,9 +211,13 @@ while game:
         
         if any(boss.rect.colliderect(bullet.rect) for bullet in BULLETS):
             boss.take_damage()
+            if boss.hp < 1:
+                B_BULLETS = []
+                b = False
             
         player.draw()
         player.move()
+        # rendering enemies, player, meteors, bullets
         for enemy in ENEMIES:
             if any(enemy.rect.colliderect(bullet.rect) for bullet in BULLETS):
                 enemy.die()
@@ -208,7 +225,7 @@ while game:
                     BULLETS.remove(bullet)
                 except:
                     print("kk")
-            if b == 0:
+            if not b:
                 enemy.draw()
                 enemy.move()
         
@@ -219,7 +236,7 @@ while game:
                     BULLETS.remove(bullet)
                 except:
                     print("kk")
-            if b == 0:
+            if not b:
                 meteor.draw()
                 meteor.move()
         
@@ -241,20 +258,34 @@ while game:
                         print("kk")
         
         for bullet in B_BULLETS:
-            bullet.draw()
-            bullet.move()
+            if b:
+                bullet.draw()
+                bullet.move()
             if player.rect.colliderect(bullet.rect) and bullet.type == "boss":
                 finish = True
         
         if patrons < 50:
             patrons += 0.01
         
-        if score >= 50:
+        if score >= b_score and not b:
             b = True
+            b_score += 50
+        
+        if b:
             boss.draw()
             boss.move()
-            if randint(1, 700) == 1:
+            if randint(1, boss.delay) == 1:
                 boss.fire()
+    
+    if finish == True:
+        if score > record:
+            new_record_txt = font.render("NEW RECORD!", True, (255, 255, 255))
+            window.blit(new_record_txt, (wind_w/2, (wind_h/2)+100))
+            with open("record.txt", "w", encoding="Utf-8") as file:
+                file.write(str(score))
+        else:
+            new_record_txt = font.render("Your score:"+str(score), True, (255, 255, 255))
+            window.blit(new_record_txt, (wind_w/2, (wind_h/2)+100))
     
     if menu:
         window.blit(menu_background, (0, 0))
@@ -279,6 +310,7 @@ while game:
             ENEMIES = []
             METEORS = []
             BULLETS = []
+            B_BULLETS = []
             for i in range(5):
                 a = randint(0, 1)
                 if a == 1:
