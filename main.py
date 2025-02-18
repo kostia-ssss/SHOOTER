@@ -295,8 +295,8 @@ while game:
                 menu = True
                 finish = True
             if close_btn.rect.collidepoint(x, y):
-                pygame.quit()
+                game = False
     
     pygame.display.update()
     clock.tick(FPS)
-    
+pygame.quit()
