@@ -173,6 +173,8 @@ player = Player(35, 400, 50, 40, p_img1, p_img2, 5)
 play_btn = Sprite(wind_w/2-35, wind_h/2-25+50, 70, 50, pygame.image.load("play_btn.png"))
 quit_btn = Sprite(wind_w-70, wind_h-50, 70, 50, pygame.image.load("quit_btn.png"))
 close_btn = Sprite(wind_w-60, 0, 60, 30, pygame.image.load("close_btn.png"))
+shop_btn = Sprite(wind_w/2-35, wind_h/2+100, 70, 50, pygame.image.load("shop_btn.png"))
+
 enemy_img = pygame.image.load("govno.png")
 meteor_img = pygame.image.load("meteor.png")
 bullet_img = pygame.image.load("bullet.png")
@@ -191,6 +193,7 @@ for i in range(5):
 game = True
 finish = True
 menu = True
+shop = False
 while game:    
     print(b)
     if not finish:
@@ -291,6 +294,10 @@ while game:
         window.blit(menu_background, (0, 0))
         play_btn.draw()
         close_btn.draw()
+        shop_btn.draw()
+    
+    if shop:
+        pass
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -328,6 +335,9 @@ while game:
                 finish = True
             if close_btn.rect.collidepoint(x, y):
                 game = False
+            if shop_btn.rect.collidepoint(x, y):
+                shop = True
+                menu = False
     
     pygame.display.update()
     clock.tick(FPS)
