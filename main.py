@@ -10,6 +10,7 @@ LM_score = 0
 patrons = 50
 record = 0
 b_score = 50
+level_of_bullet = 1
 clock = pygame.time.Clock()
 
 wind_w, wind_h = 700, 500
@@ -174,10 +175,12 @@ play_btn = Sprite(wind_w/2-35, wind_h/2-25+50, 70, 50, pygame.image.load("play_b
 quit_btn = Sprite(wind_w-70, wind_h-50, 70, 50, pygame.image.load("quit_btn.png"))
 close_btn = Sprite(wind_w-60, 0, 60, 30, pygame.image.load("close_btn.png"))
 shop_btn = Sprite(wind_w/2-35, wind_h/2+100, 70, 50, pygame.image.load("shop_btn.png"))
+up = Sprite(10, 10, 525, 325, pygame.image.load("up.png"))
+quit_shop_btn = Sprite(0, wind_h-50, 70, 50, pygame.image.load("quit_btn.png"))
+up_btn = Sprite(35, 150, 60, 40, pygame.image.load("up_btn.png"))
 
 enemy_img = pygame.image.load("govno.png")
 meteor_img = pygame.image.load("meteor.png")
-bullet_img = pygame.image.load("bullet.png")
 ENEMIES = []
 METEORS = []
 BULLETS = []
@@ -187,7 +190,7 @@ for i in range(5):
     if a == 1:
         ENEMIES.append(Enemy(randint(0, wind_w-50), randint(-250, -50), 50, 40, enemy_img, 3))
     else:
-        METEORS.append(Meteor(randint(0, wind_w-50), randint(-250, -50), 50, 40, meteor_img, 3, 3))
+        METEORS.append(Meteor(randint(0, wind_w-50), randint(-250, -50), 50, 40, meteor_img, 3, 6))
 
 # game loop
 game = True
@@ -195,7 +198,8 @@ finish = True
 menu = True
 shop = False
 while game:    
-    print(b)
+    bullet_img = pygame.image.load(f"bullet{level_of_bullet}.png")
+
     if not finish:
         # rendering
         window.blit(background, (0, 0))
@@ -234,7 +238,8 @@ while game:
         
         for meteor in METEORS:
             if any(meteor.rect.colliderect(bullet.rect) for bullet in BULLETS):
-                meteor.take_damage()
+                for i in range(level_of_bullet):
+                    meteor.take_damage()
                 try:
                     BULLETS.remove(bullet)
                 except:
@@ -297,7 +302,11 @@ while game:
         shop_btn.draw()
     
     if shop:
-        pass
+        pygame.draw.rect(window, (50, 50, 50), (0, 0, wind_w, wind_h))
+        up.draw()
+        quit_shop_btn.draw()
+        up_btn.draw()
+        
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -323,7 +332,7 @@ while game:
                 if a == 1:
                     ENEMIES.append(Enemy(randint(0, wind_w-50), randint(-250, -50), 50, 40, enemy_img, 3))
                 else:
-                    METEORS.append(Meteor(randint(0, wind_w-50), randint(-250, -50), 50, 40, meteor_img, 3, 3))
+                    METEORS.append(Meteor(randint(0, wind_w-50), randint(-250, -50), 50, 40, meteor_img, 3, 6))
         
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             x , y = event.pos
@@ -338,6 +347,14 @@ while game:
             if shop_btn.rect.collidepoint(x, y):
                 shop = True
                 menu = False
+            if quit_shop_btn.rect.collidepoint(x, y):
+                shop = False
+                menu = True
+            if up_btn.rect.collidepoint(x, y):
+                if level_of_bullet < 3:    
+                    level_of_bullet += 1
+                else:
+                    up_btn = Sprite(35, 150, 60, 40, pygame.image.load("MAX.png"))
     
     pygame.display.update()
     clock.tick(FPS)
