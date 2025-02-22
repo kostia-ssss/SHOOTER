@@ -216,11 +216,11 @@ while game:
             window.blit(reset, (200, 250))
             finish = True
         
-        if any(boss.rect.colliderect(bullet.rect) for bullet in BULLETS):
-            boss.take_damage()
-            if boss.hp < 1:
-                B_BULLETS = []
-                b = False
+        # if any(boss.rect.colliderect(bullet.rect) for bullet in BULLETS):
+        #     boss.take_damage()
+        if boss.hp < 1:
+            B_BULLETS = []
+            b = False
             
         player.draw()
         player.move()
@@ -252,15 +252,16 @@ while game:
             bullet.draw()
             bullet.move()
             if bullet.rect.colliderect(boss.rect):
-                boss.take_damage()
+                for i in range(level_of_bullet):
+                    boss.take_damage()
                 try:
                     BULLETS.remove(bullet)
                 except:
                     print("kk")
-            for b in B_BULLETS:
-                if bullet.rect.colliderect(b.rect):
+            for bu in B_BULLETS:
+                if bullet.rect.colliderect(bu.rect):
                     try:
-                        B_BULLETS.remove(b)
+                        B_BULLETS.remove(bu)
                         BULLETS.remove(bullet)
                     except:
                         print("kk")
