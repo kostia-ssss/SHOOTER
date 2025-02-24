@@ -216,8 +216,6 @@ while game:
             window.blit(reset, (200, 250))
             finish = True
         
-        # if any(boss.rect.colliderect(bullet.rect) for bullet in BULLETS):
-        #     boss.take_damage()
         if boss.hp < 1:
             B_BULLETS = []
             b = False
