@@ -156,6 +156,7 @@ difficult_coof = 1
 font = pygame.font.SysFont("Comfortaa" , 50)
 font2 = pygame.font.SysFont("Comfortaa" , 20)
 font3 = pygame.font.SysFont("Comfortaa" , 35)
+font4 = pygame.font.SysFont("Comfortaa" , 20)
 score_font = pygame.font.SysFont("Comfortaa" , 35)
 lose_font = pygame.font.SysFont("Comfortaa" , 35)
 record_font = pygame.font.SysFont("Comfortaa" , 35)
@@ -165,6 +166,7 @@ reset = font.render("Press R to reset", True, (255, 255, 255))
 score_txt = font.render(str(score), True, (255, 255, 255))
 p_txt = font.render(str(patrons), True, (255, 255, 255))
 r_txt = record_font.render(str(record), True, (255, 255, 255))
+m_txt = font4.render("Made by TehnoKostia", True, (255, 255, 255))
 
 b = False
 boss = Boss(50, 50, 120, 100, pygame.image.load("Boss.png"), 3, 10, 700)
@@ -299,6 +301,7 @@ while game:
         play_btn.draw()
         close_btn.draw()
         shop_btn.draw()
+        window.blit(m_txt, (0, wind_h-20))
     
     if shop:
         pygame.draw.rect(window, (50, 50, 50), (0, 0, wind_w, wind_h))
@@ -313,9 +316,6 @@ while game:
         
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             player.FIRE()
-        
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_l:
-            score += 50
             
         if event.type == pygame.KEYDOWN and event.key == pygame.K_r and finish == True:
             finish = False
