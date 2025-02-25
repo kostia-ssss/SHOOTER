@@ -338,6 +338,17 @@ while game:
             if play_btn.rect.collidepoint(x, y):
                 finish = False
                 menu = False
+                player = Player(35, 400, 50, 40, p_img1, p_img2, 5)
+                ENEMIES = []
+                METEORS = []
+                BULLETS = []
+                B_BULLETS = []
+                for i in range(5):
+                    a = randint(0, 1)
+                    if a == 1:
+                        ENEMIES.append(Enemy(randint(0, wind_w-50), randint(-250, -50), 50, 40, enemy_img, 3))
+                    else:
+                        METEORS.append(Meteor(randint(0, wind_w-50), randint(-250, -50), 50, 40, meteor_img, 3, 6))
             if quit_btn.rect.collidepoint(x, y):
                 menu = True
                 finish = True
